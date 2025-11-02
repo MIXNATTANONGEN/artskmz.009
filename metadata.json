@@ -1,0 +1,5 @@
+{
+  "name": "MIX-IMAGE AI V.3",
+  "description": "An AI-powered prompt builder for creating professional ID photos. Users can upload a reference image (optional), select clothing, background, and makeup/hair styles to generate a detailed prompt for image generation models.",
+  "requestFramePermissions": []
+}
