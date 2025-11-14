@@ -10,15 +10,61 @@ import type { Gender } from '../types';
 const IMAGE_EDIT_MODEL = 'imagen-3.0-capability-001';
 const TEXT_MODEL = 'gemini-2.0-flash';
 
+type GeminiRuntimeEnv = {
+  __GEMINI_API_KEY__?: string;
+  __env__?: Record<string, string | undefined>;
+};
+
 let client: GoogleGenAI | null = null;
+let resolvedApiKey: string | null = null;
+let manualApiKey: string | null = null;
+
+const sanitizeKey = (apiKey: string | null | undefined) => {
+  const trimmed = apiKey?.trim();
+  return trimmed ? trimmed : null;
+};
+
+const readRuntimeInjectedKey = (): string | null => {
+  const runtime = globalThis as GeminiRuntimeEnv;
+  return (
+    sanitizeKey(runtime.__GEMINI_API_KEY__) ||
+    sanitizeKey(runtime.__env__?.VITE_GEMINI_API_KEY) ||
+    sanitizeKey(runtime.__env__?.VITE_API_KEY) ||
+    sanitizeKey(runtime.__env__?.GEMINI_API_KEY) ||
+    sanitizeKey(runtime.__env__?.API_KEY)
+  );
+};
 
 const resolveApiKey = (): string => {
+  if (manualApiKey) {
+    return manualApiKey;
+  }
+
+  if (resolvedApiKey) {
+    return resolvedApiKey;
+  }
+
   const env = import.meta.env as Record<string, string | undefined>;
-  const apiKey = env.VITE_GEMINI_API_KEY || env.VITE_API_KEY || env.GEMINI_API_KEY || env.API_KEY;
-  if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
+  const envKey =
+    sanitizeKey(env?.VITE_GEMINI_API_KEY) ||
+    sanitizeKey(env?.VITE_API_KEY) ||
+    sanitizeKey(env?.GEMINI_API_KEY) ||
+    sanitizeKey(env?.API_KEY);
+
+  const key = readRuntimeInjectedKey() || envKey;
+
+  if (!key || key === 'PLACEHOLDER_API_KEY') {
     throw new Error('Gemini API key is not configured');
   }
-  return apiKey;
+
+  resolvedApiKey = key;
+  return key;
+};
+
+export const configureGeminiApiKey = (apiKey: string | null | undefined) => {
+  manualApiKey = sanitizeKey(apiKey);
+  resolvedApiKey = null;
+  client = null;
 };
 
 const getClient = () => {

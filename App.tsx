@@ -129,18 +129,18 @@ const HowAiWorksModal: React.FC<HowAiWorksModalProps> = ({ isOpen, onClose }) =>
 
   const codeSnippet = `import { GoogleGenAI } from '@google/genai';
 
-// The API key is securely accessed from environment variables.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // The API key is securely accessed from Vite environment variables at build time.
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-async function getExplanation() {
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: 'Explain how AI works in a few words, in Thai language for a non-technical audience.',
-  });
-  
-  // The text you see above is from response.text
-  return response.text;
-}`;
+  async function getExplanation() {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: 'Explain how AI works in a few words, in Thai language for a non-technical audience.',
+    });
+
+    // The text you see above is from response.text
+    return response.text;
+  }`;
 
   const handleCopyCode = useCallback(async () => {
     try {
