@@ -12,17 +12,21 @@ const TEXT_MODEL = 'gemini-2.0-flash';
 
 let client: GoogleGenAI | null = null;
 
+const resolveApiKey = (): string => {
+  const env = import.meta.env as Record<string, string | undefined>;
+  const apiKey = env.VITE_GEMINI_API_KEY || env.VITE_API_KEY || env.GEMINI_API_KEY || env.API_KEY;
+  if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
+    throw new Error('Gemini API key is not configured');
+  }
+  return apiKey;
+};
+
 const getClient = () => {
   if (client) {
     return client;
   }
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
-  if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
-    throw new Error('Gemini API key is not configured');
-  }
-
-  client = new GoogleGenAI({ apiKey });
+  client = new GoogleGenAI({ apiKey: resolveApiKey() });
   return client;
 };
 
