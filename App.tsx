@@ -115,6 +115,21 @@ function getFriendlyErrorMessage(error: any): { message: string; retryAfter?: nu
 }
 
 
+const cloneSelectedStyles = (styles: SelectedStyles): SelectedStyles => {
+  const cloned: SelectedStyles = { ...styles };
+
+  if (styles.retouching) {
+    cloned.retouching = [...styles.retouching];
+  }
+
+  if (styles.lighting) {
+    cloned.lighting = [...styles.lighting];
+  }
+
+  return cloned;
+};
+
+
 // Modal component for explaining how AI works
 interface HowAiWorksModalProps {
   isOpen: boolean;
@@ -385,7 +400,11 @@ const App: React.FC = () => {
 
   const handleStyleSelect = useCallback((category: StyleCategory, value: string, payload?: any) => {
     if (category === 'saved') {
-        setSelectedStyles(payload as SelectedStyles);
+        if (!payload) {
+          return;
+        }
+        const presetStyles = cloneSelectedStyles(payload as SelectedStyles);
+        setSelectedStyles(presetStyles);
         setGeneratedImage(null);
         setError(null);
         setRetryAfter(0);
@@ -438,10 +457,11 @@ const App: React.FC = () => {
     });
   }, []);
 
-   const handleSaveStyle = useCallback(() => {
+  const handleSaveStyle = useCallback(() => {
     const name = window.prompt("ตั้งชื่อสไตล์ที่บันทึก:");
     if (name && name.trim()) {
-        const newPreset = { name: name.trim(), styles: selectedStyles };
+        const styleSnapshot = cloneSelectedStyles(selectedStyles);
+        const newPreset = { name: name.trim(), styles: styleSnapshot };
         const updatedPresets = [...savedPresets, newPreset];
         setSavedPresets(updatedPresets);
         try {
