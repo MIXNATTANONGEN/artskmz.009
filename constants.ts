@@ -1,4 +1,7 @@
-import type { StyleCategory, Style, GenderSpecificStyles, ColorOption } from './types';
+import type { StyleCategory, Style, GenderSpecificStyles, ColorOption, Gender } from './types';
+
+export const getGenderStyleKey = (gender: Gender): keyof GenderSpecificStyles =>
+  gender === 'ชาย' ? 'male' : 'female';
 
 const FACE_PREVIEW = 'https://placehold.co/100x100/ffedd5/333/png?text=Face';
 
