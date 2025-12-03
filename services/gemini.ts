@@ -7,12 +7,13 @@ const TEXT_MODEL = 'gemini-2.0-flash';
 let client: GoogleGenAI | null = null;
 
 function resolveApiKey(): string {
-  const keyFromProcess = typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : undefined;
   const keyFromImportMeta =
     typeof import.meta !== 'undefined' && (import.meta as any)?.env
-      ? (import.meta as any).env.GEMINI_API_KEY || (import.meta as any).env.VITE_GEMINI_API_KEY
+      ? (import.meta as any).env.VITE_GEMINI_API_KEY || (import.meta as any).env.GEMINI_API_KEY
       : undefined;
-  const apiKey = keyFromProcess || keyFromImportMeta;
+  const keyFromProcess =
+    typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY || process.env?.VITE_GEMINI_API_KEY : undefined;
+  const apiKey = keyFromImportMeta || keyFromProcess;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY is not configured');
   }
